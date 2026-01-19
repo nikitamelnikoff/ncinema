@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>NCinema</title>
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='glow'%3E%3CfeGaussianBlur stdDeviation='3' result='coloredBlur'/%3E%3CfeMerge%3E%3CfeMergeNode in='coloredBlur'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='%23050505' /%3E%3Cpath d='M35 25 L80 50 L35 75 Z' fill='%237000FF' filter='url(%23glow)' /%3E%3C/svg%3E" type="image/svg+xml">
+
+    <style>
+        :root {
+            /* --- 1. ФИРМЕННЫЕ ЦВЕТА (НЕИЗМЕННЫЕ) --- */
+            --brand-primary: #7000FF;
+            --brand-secondary: #9D00FF;
+
+            /* --- 2. ДИНАМИЧЕСКИЕ ЦВЕТА (ФОН) --- */
+            --default-blob1: #7000FF;
+            --default-blob2: #4B0082;
+            --default-blob3: #9D00FF;
+
+            --active-blob1: var(--default-blob1);
+            --active-blob2: var(--default-blob2);
+            --active-blob3: var(--default-blob3);
+
+            --bg-deep: #050505;
+            --text: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        /* --- ГЛОБАЛЬНЫЕ --- */
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-deep);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            text-transform: lowercase; 
+        }
+
+        /* --- ФОН --- */
+        .background-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; background: #000; overflow: hidden;
+        }
+
+        .gradient-blob {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6;
+            animation: float infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 1.5s ease-in-out;
+        }
+
+        .blob-1 { top: -10%; left: -10%; width: 60vw; height: 60vw; background: var(--active-blob1); animation-duration: 10s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 70vw; height: 70vw; background: var(--active-blob2); animation-delay: -2s; animation-duration: 12s; }
+        .blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: var(--active-blob3); animation-duration: 8s; }
+        
+        @keyframes float { 
+            0% { transform: translate(0, 0) scale(1); } 
+            100% { transform: translate(30px, 50px) scale(1.15); } 
+        }
+
+        .star {
+            position: absolute; background: white; border-radius: 50%; opacity: 0;
+            animation: twinkle var(--twinkle-duration) ease-in-out infinite, drift var(--move-duration) linear infinite alternate;
+        }
+        @keyframes twinkle { 0% { opacity: 0; transform: scale(0.5); } 50% { opacity: var(--max-opacity); transform: scale(1.2); } 100% { opacity: 0; transform: scale(0.5); } }
+        @keyframes drift { 0% { transform: translate(0, 0); } 100% { transform: translate(var(--move-x), var(--move-y)); } }
+
+        /* --- ХЕДЕР --- */
+        .header { 
+            position: sticky; top: 0; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 40px; background: var(--header-bg);
+            border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+
+        .brand { 
+            font-size: 2rem; font-weight: 900; letter-spacing: -1px;
+            background: linear-gradient(45deg, var(--brand-primary), var(--brand-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-transform: uppercase; cursor: pointer;
+        }
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
+
+        .header-btn {
+            background: transparent; border: none; font-weight: 700; font-size: 1rem;
+            cursor: pointer; padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+            background: linear-gradient(45deg, var(--brand-primary), var(--brand-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            transition: transform 0.2s;
+        }
+        .header-btn:hover { transform: scale(1.05); }
+
+        /* --- UI КОНТЕНТ --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px; padding-bottom: 100px; }
+        .nav-bar { display: flex; align-items: center; margin-bottom: 30px; position: relative; }
+        .back-btn { font-size: 1.2rem; color: rgba(255,255,255,0.6); cursor: pointer; transition: 0.3s; }
+        .back-btn:hover { color: white; transform: translateX(-5px); }
+
+        .section-title { 
+            font-size: 3.5rem; font-weight: 800; margin-bottom: 40px; 
+            color: #ffffff; letter-spacing: -2px; line-height: 1; text-transform: lowercase; 
+        }
+        .resume-title {
+            font-size: 1.2rem; font-weight: 600; margin-bottom: 20px;
+            color: rgba(255,255,255,0.7); text-transform: lowercase; letter-spacing: 0.5px;
+        }
+
+        /* --- СЕТКА (ОСНОВА) --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; }
+        
+        .card {
+            position: relative; aspect-ratio: 2/3; border-radius: 16px; cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease; 
+            background: transparent;
+            transform-origin: center center;
+        }
+        
+        .card img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 16px;
+            filter: brightness(0.85); transition: all 0.5s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .card-info {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; box-sizing: border-box;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            border-radius: 0 0 16px 16px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease;
+        }
+        
+        .card h3 { margin: 0; font-size: 1.1rem; font-weight: 700; line-height: 1.2; text-transform: lowercase; }
+        .card p { margin: 5px 0 0 0; font-size: 0.85rem; opacity: 0.7; text-transform: lowercase; }
+
+        /* --- ХОВЕРЫ ДЛЯ ПК --- */
+        @media (hover: hover) {
+            .card:hover { transform: scale(1.05) translateY(-10px); z-index: 2; }
+            .card:hover img { filter: brightness(1.1); box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(var(--active-blob1), 0.3); }
+            .card:hover .card-info { opacity: 1; transform: translateY(0); }
+            
+            /* Стили для истории на ПК */
+            #resume-grid .card:first-child { border: 2px solid rgba(255, 255, 255, 0.6); box-shadow: 0 0 35px rgba(255, 255, 255, 0.15); z-index: 5; }
+            #resume-grid .card:first-child:hover { border-color: #fff; box-shadow: 0 0 50px rgba(255, 255, 255, 0.4); transform: scale(1.05) translateY(-10px); }
+            #resume-grid .card:not(:first-child) { opacity: 0.5; transform: scale(0.95); filter: grayscale(40%); transition: all 0.4s ease; }
+            #resume-grid .card:not(:first-child):hover { opacity: 1; transform: scale(1.05) translateY(-10px); filter: grayscale(0%); box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(var(--active-blob1), 0.3); z-index: 10; }
+        }
+
+        /* --- МОБИЛЬНАЯ КАРУСЕЛЬ --- */
+        @media (max-width: 768px) {
+            .container { padding: 20px; padding-bottom: 80px; }
+            .header { padding: 15px 20px; }
+            .section-title { font-size: 2.2rem; margin-bottom: 25px; }
+
+            .grid {
+                display: flex; 
+                overflow-x: auto; 
+                gap: 20px; 
+                padding: 10px 50vw 40px 20px; 
+                scroll-snap-type: x mandatory; 
+                scrollbar-width: none; 
+                -webkit-overflow-scrolling: touch;
+            }
+            .grid::-webkit-scrollbar { display: none; }
+
+            .card {
+                min-width: 75vw;
+                scroll-snap-align: center;
+                transform: scale(0.9); opacity: 0.5; filter: grayscale(40%);
+                z-index: 1;
+            }
+
+            .card.mobile-active {
+                transform: scale(1); opacity: 1; filter: grayscale(0%); z-index: 10;
+            }
+            .card.mobile-active img {
+                box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 20px rgba(var(--active-blob1), 0.4);
+            }
+            .card.mobile-active .card-info { opacity: 1; transform: translateY(0); }
+            
+            #resume-grid .card:first-child { border: none; }
+        }
+
+
+        /* --- АДМИНКА --- */
+        .add-card-btn {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.05); border: 2px dashed var(--active-blob1);
+            border-radius: 16px; cursor: pointer; aspect-ratio: 2/3;
+            color: var(--active-blob1); transition: 0.2s;
+            min-width: 75vw; scroll-snap-align: center;
+        }
+        .add-card-btn:hover { background: rgba(255,255,255, 0.1); transform: scale(1.02); }
+        .add-card-btn span { font-size: 3rem; line-height: 1; font-weight: 700; }
+        .add-card-btn div { font-size: 0.9rem; font-weight: 600; margin-top: 10px; text-transform: lowercase; }
+
+        .card-controls { display: none; position: absolute; top: 10px; right: 10px; z-index: 100; gap: 8px; }
+        .ctrl-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #fff; transition: 0.2s; }
+        .delete-btn { background: #e11d48; }
+        .edit-link-btn { background: var(--active-blob1); }
+        .ctrl-btn:hover { transform: scale(1.1); }
+
+        body.editor-mode .add-card-btn { display: flex; }
+        body.editor-mode .card:hover .card-controls { display: flex; }
+        body.editor-mode [contenteditable="true"]:hover { outline: 1px dashed var(--active-blob1); cursor: text; }
+
+        #color-picker-ui {
+            display: none; position: absolute; right: 0; top: -5px;
+            background: #1d1d1f; padding: 10px; border-radius: 30px;
+            border: 1px solid #333; gap: 10px; align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 500;
+        }
+        body.editor-mode .collection-section:not(.hidden) #color-picker-ui { display: flex; }
+        .color-input-wrapper { position: relative; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; border: 2px solid #fff; cursor: pointer; transition: transform 0.2s; }
+        .color-input-wrapper:hover { transform: scale(1.2); }
+        .color-input-wrapper input[type="color"] { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; padding: 0; margin: 0; border: none; cursor: pointer; }
+
+        /* --- ПЛЕЕР --- */
+        .modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 9999; display: flex; justify-content: center; align-items: center; 
+            opacity: 0; pointer-events: none; transition: opacity 0.5s ease; padding: 40px; box-sizing: border-box;
+        }
+        .modal.active { opacity: 1; pointer-events: auto; }
+        .video-wrapper { 
+            width: 100%; max-width: 1200px; aspect-ratio: 16/9; position: relative; 
+            border-radius: 24px; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8); background: #000;
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+        .close-btn { 
+            position: absolute; top: 20px; right: 20px; width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.1); color: white; font-size: 1.5rem; 
+            display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; 
+            border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; z-index: 10000;
+        }
+        .close-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.1); }
+        
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.6s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ПАНЕЛЬ АДМИНА */
+        #admin-panel { position: fixed; bottom: 20px; right: 20px; background: #1d1d1f; color: #fff; padding: 15px 25px; border-radius: 50px; z-index: 10000; display: none; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        #admin-panel button { border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #fff; text-transform: lowercase; }
+        #save-btn { background: var(--active-blob1); }
+        #exit-btn { background: #e11d48; }
+        
+        #login-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10001; align-items:center; justify-content:center; }
+        .login-box { background:#1d1d1f; padding:30px; border-radius:16px; border: 1px solid #333; display:flex; flex-direction:column; gap:15px; width: 280px; text-align: center; }
+        .login-box h3 { color: white; font-weight: 600; text-transform: lowercase; }
+        .login-box input { padding:12px; border-radius:8px; border:none; background: #333; color: white; font-size: 1rem; text-align: center;}
+        .login-box button { padding:12px; background:var(--brand-primary); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight: 700; font-size: 1rem; text-transform: lowercase; }
+
+    </style>
+</head>
+<body class="">
+
+    <div class="background-container" id="stars-container">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+        <div class="gradient-blob blob-3"></div>
+    </div>
+
+    <header class="header">
+        <div class="header-left">
+            <div class="brand" onclick="goHome()">NCinema</div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn"><span>♥</span> любимое</button>
+            <button class="header-btn admin-trigger-btn" id="admin-trigger" style="display: block;"><span>+</span> управление</button>
+        </div>
+    </header>
+
+    <div class="container" id="main-container">
+        
+        <div id="home-view" class="fade-in">
+            
+            <div id="history-section" class="fade-in hidden">
+                <h2 class="section-title">история просмотров</h2>
+                <div class="grid" id="resume-grid" style="margin-bottom: 60px;"></div>
+            </div>
+
+            <h2 class="section-title">моя коллекция</h2>
+            <div class="grid" id="collections-grid">
+                
+                <div class="card collection-card" onclick="openPage('col-sample')" data-c1="#4cc6d6" data-c2="#114174" data-c3="#0091ff">
+                    <img src="https://www.themoviedb.org/t/p/w1280/rzE3OlUntmIDgfVQGxU7WIjAY7L.jpg" alt="Гарри Поттер">
+                    <div class="card-info">
+                        <h3>гарри поттер</h3>
+                        <p>коллекция</p>
+                    </div>
+                </div>
+
+                <div class="card collection-card" onclick="openPage('col-r71sfwqd0')" data-c1="#e2b465" data-c2="#804a00" data-c3="#ff7b00">
+                    <img src="https://www.themoviedb.org/t/p/w1280/nQLlpH905RXa9ifZrK8sWCbm4FS.jpg" alt="властелин колец">
+                    <div class="card-info"><h3>властелин колец</h3><p>коллекция</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="col-sample" class="collection-section fade-in hidden" data-c1="#4cc6d6" data-c2="#114174" data-c3="#0091ff">
+            <div class="nav-bar">
+                <div class="back-btn" onclick="goHome()">← назад</div>
+                <div id="color-picker-ui">
+                    <div class="color-input-wrapper"><input type="color" value="#7000FF" oninput="updateSectionColor(this, 1)"></div>
+                    <div class="color-input-wrapper"><input type="color" value="#4B0082" oninput="updateSectionColor(this, 2)"></div>
+                    <div class="color-input-wrapper"><input type="color" value="#9D00FF" oninput="updateSectionColor(this, 3)"></div>
+                </div>
+            </div>
+            <h2 class="section-title">гарри поттер</h2>
+            <div class="grid movie-grid">
+                 <div class="card" onclick="playVideo('1lyT302Lb-Dkx4E36L-Fodu69XWp6cx8w')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/Z2CbhtMtbVaBEvhqBKMNB0p0ko.jpg">
+                    <div class="card-info"><h3>философский камень</h3><p>2001</p></div>
+                </div>
+                <div class="card" onclick="playVideo('1YkiXBDKO7zTL-5UmJehteG0IY8qgEQYy')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/33Wj3LSyoAqtqkeh7YXcVMvTQzc.jpg">
+                    <div class="card-info"><h3>тайная комната</h3><p>2002</p></div>
+                </div>
+                <div class="card" onclick="playVideo('1-ouEbW3mQKrsMrcQXjt7N3XHO5PgeQol')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/mncDize7FLO9RBovXKZ7LefUkbu.jpg">
+                    <div class="card-info"><h3>узник азкабана</h3><p>2004</p></div>
+                </div>
+                <div class="card" onclick="playVideo('1qH6UNiPOQOeF2cmMmVLAqrtUBv-yNMw9')">
+                    <img src="https://image.tmdb.org/t/p/original/sJRIYTEJWanrh1o8yfhGkOGJ7zu.jpg">
+                    <div class="card-info"><h3>кубок огня</h3><p>2005</p></div>
+                </div>
+                <div class="card" onclick="playVideo('1HpYXGxOlYSJaTh8v2UR8FOPhDpHIGTLw')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/lBuFOlXNY3YYIkXInGqcd7aJoAY.jpg">
+                    <div class="card-info"><h3>орден феникса</h3><p>2007</p></div>
+                </div>
+                <div class="card" onclick="playVideo('1XmvA_4zfP1SLY4rh2Tlk-pFeaRXCO8ln')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/zhMOIXezutmTCeP1AvPZHakGCYs.jpg">
+                    <div class="card-info"><h3>принц-полукровка</h3><p>2009</p></div>
+                </div>
+                <div class="card" onclick="playVideo('1okFV-_QCd3He6T_P8lq6L2de64tN3KJ_')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/nUJc0DOO0lh8pjLkmMtPObA2NKf.jpg">
+                    <div class="card-info"><h3>дары смерти</h3><p>2010</p></div>
+                </div>
+                <div class="card" onclick="playVideo('аиа')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/cSxvq15AOeJ2jNdVRXJvAoZU8T6.jpg">
+                    <div class="card-info"><h3>дары смерти</h3><p>2011</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="col-r71sfwqd0" class="collection-section fade-in hidden" data-c1="#e2b465" data-c2="#804a00" data-c3="#ff7b00">
+            <div class="nav-bar">
+                <div class="back-btn" onclick="goHome()">← назад</div>
+                <div id="color-picker-ui">
+                    <div class="color-input-wrapper"><input type="color" value="#7000FF" oninput="updateSectionColor(this, 1)"></div>
+                    <div class="color-input-wrapper"><input type="color" value="#4B0082" oninput="updateSectionColor(this, 2)"></div>
+                    <div class="color-input-wrapper"><input type="color" value="#9D00FF" oninput="updateSectionColor(this, 3)"></div>
+                </div>
+            </div>
+            <h2 class="section-title">властелин колец</h2>
+            <div class="grid movie-grid">
+                <div class="card" onclick="playVideo('1bnbzxHBS5z_qtvDO_bB5eRc-y3tq7td3')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/lxaDSQCLsMRRbp4UsfvsxzOq1OB.jpg">
+                    <div class="card-info"><h3>братство кольца</h3><p>2001</p></div>
+                </div>
+                <div class="card" onclick="playVideo('1JRD5KiomRXKg61ISL0dnsBaErShE0VcB')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/tGoC0XMAHrDm8iZlDWI4uk80kdo.jpg">
+                    <div class="card-info"><h3>две крепости</h3><p>2002</p></div>
+                </div>
+                <div class="card" onclick="playVideo('d/1P_DX-WCtuyGDX5bbGwCSSa7rlnBP6Q1-')">
+                    <img src="https://www.themoviedb.org/t/p/w1280/x6NqCWwU1SrQnvfdmVPAuATyUgD.jpg">
+                    <div class="card-info"><h3>возвращение короля</h3><p>2003</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="player-modal" class="modal">
+        <button class="close-btn" onclick="closeVideo()">×</button>
+        <div class="video-wrapper">
+            <iframe id="video-frame" src="" allow="autoplay; fullscreen"></iframe>
+        </div>
+    </div>
+
+    <div id="login-modal" style="display: none;">
+        <div class="login-box">
+            <h3>вход администратора</h3>
+            <input type="password" id="admin-pass" placeholder="введите пароль">
+            <button id="login-btn">войти</button>
+            <button onclick="document.getElementById('login-modal').style.display='none'" style="background:transparent; border:1px solid #444; margin-top:5px;">отмена</button>
+        </div>
+    </div>
+
+    <div id="admin-panel" style="display: none;">
+        <span style="color:#fff; font-weight:bold;">● редактор</span>
+        <button id="save-btn" onclick="saveChanges()">сохранить сайт</button>
+        <button id="exit-btn" onclick="exitEditor()">выйти</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('stars-container');
+            container.querySelectorAll('.star').forEach(s => s.remove());
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random()*100}%`;
+                star.style.top = `${Math.random()*100}%`;
+                const size = Math.random()*2+1;
+                star.style.width = `${size}px`; star.style.height = `${size}px`;
+                star.style.setProperty('--max-opacity', Math.random()*0.7+0.3);
+                star.style.setProperty('--twinkle-duration', `${Math.random()*5+3}s`);
+                star.style.setProperty('--move-x', (Math.random()-0.5)*50+'px');
+                star.style.setProperty('--move-y', (Math.random()-0.5)*50+'px');
+                star.style.setProperty('--move-duration', `${Math.random()*20+20}s`);
+                container.appendChild(star);
+            }
+            restoreSession();
+            initMobileParallax();
+        });
+
+        /* --- МОБИЛЬНЫЙ ПАРАЛЛАКС --- */
+        function initMobileParallax() {
+            const options = { root: null, rootMargin: '0px', threshold: 0.7 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('mobile-active');
+                    } else {
+                        entry.target.classList.remove('mobile-active');
+                    }
+                });
+            }, options);
+            document.querySelectorAll('.card, .add-card-btn').forEach(el => observer.observe(el));
+        }
+
+        /* --- ПАМЯТЬ И ИСТОРИЯ --- */
+        function restoreSession() {
+            const lastPageId = localStorage.getItem('nc_last_page');
+            if (lastPageId && document.getElementById(lastPageId)) {
+                openPage(lastPageId, false);
+            }
+            updateHistoryWidget();
+        }
+
+        function addToHistory(id, img, title, year) {
+            let history = JSON.parse(localStorage.getItem('nc_history_list') || '[]');
+            history = history.filter(item => item.id !== id);
+            history.unshift({ id, img, title, year });
+            if (history.length > 4) history.length = 4;
+            localStorage.setItem('nc_history_list', JSON.stringify(history));
+            updateHistoryWidget();
+        }
+
+        function updateHistoryWidget() {
+            const history = JSON.parse(localStorage.getItem('nc_history_list') || '[]');
+            const section = document.getElementById('history-section');
+            const grid = document.getElementById('resume-grid');
+            
+            if (history.length > 0 && grid) {
+                grid.innerHTML = '';
+                history.forEach(data => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.onclick = () => playVideo(data.id, false); 
+                    card.innerHTML = `
+                        <img src="${data.img}">
+                        <div class="card-info">
+                            <h3>${data.title}</h3>
+                            <p>${data.year}</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                section.classList.remove('hidden');
+                section.classList.add('fade-in');
+                setTimeout(initMobileParallax, 100);
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        /* --- ЦВЕТА --- */
+        const root = document.documentElement;
+        function applyColors(c1, c2, c3) {
+            root.style.setProperty('--active-blob1', c1);
+            root.style.setProperty('--active-blob2', c2);
+            root.style.setProperty('--active-blob3', c3);
+        }
+        function updateSectionColor(input, index) {
+            const color = input.value;
+            const section = input.closest('.collection-section');
+            root.style.setProperty(`--active-blob${index}`, color);
+            section.setAttribute(`data-c${index}`, color);
+            const id = section.id;
+            const card = document.querySelector(`.collection-card[onclick*="'${id}'"]`);
+            if(card) { card.setAttribute(`data-c${index}`, color); }
+        }
+
+        /* --- НАВИГАЦИЯ --- */
+        const homeView = document.getElementById('home-view');
+        const modal = document.getElementById('player-modal');
+        const iframe = document.getElementById('video-frame');
+        let currentSection = null;
+
+        function openPage(id, saveToMemory = true) {
+            if (event && event.target && event.target.closest('.card-controls')) return;
+            const target = document.getElementById(id);
+            if(target) {
+                homeView.classList.add('hidden');
+                target.classList.remove('hidden');
+                target.classList.add('fade-in');
+                currentSection = target;
+                window.scrollTo(0,0);
+
+                const c1 = target.getAttribute('data-c1') || '#7000FF';
+                const c2 = target.getAttribute('data-c2') || '#4B0082';
+                const c3 = target.getAttribute('data-c3') || '#9D00FF';
+                
+                const picker = target.querySelector('#color-picker-ui');
+                if(picker) {
+                    picker.querySelectorAll('input')[0].value = c1;
+                    picker.querySelectorAll('input')[1].value = c2;
+                    picker.querySelectorAll('input')[2].value = c3;
+                }
+                applyColors(c1, c2, c3);
+                if (saveToMemory) localStorage.setItem('nc_last_page', id);
+                setTimeout(initMobileParallax, 100);
+            }
+        }
+
+        function goHome() {
+            if(currentSection) currentSection.classList.add('hidden');
+            homeView.classList.remove('hidden');
+            homeView.classList.add('fade-in');
+            currentSection = null;
+            applyColors('#7000FF', '#4B0082', '#9D00FF');
+            localStorage.removeItem('nc_last_page');
+            updateHistoryWidget();
+        }
+
+        /* --- VIDEO --- */
+        function playVideo(fileId, recordHistory = true) {
+            if (document.body.classList.contains('editor-mode')) return;
+            if(fileId.length < 2) { alert('ошибка id'); return; }
+            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+            modal.classList.add('active');
+            if (recordHistory) {
+                let card = event.target.closest('.card');
+                if (card) {
+                    const img = card.querySelector('img').src;
+                    const title = card.querySelector('h3').innerText;
+                    const year = card.querySelector('p').innerText;
+                    addToHistory(fileId, img, title, year);
+                }
+            }
+        }
+        function closeVideo() {
+            modal.classList.remove('active');
+            setTimeout(() => { iframe.src = ""; }, 500);
+        }
+
+        /* --- ADMIN CORE --- */
+        const trigger = document.getElementById('admin-trigger');
+        const loginModal = document.getElementById('login-modal');
+        const passInput = document.getElementById('admin-pass');
+        const loginBtn = document.getElementById('login-btn');
+        const adminPanel = document.getElementById('admin-panel');
+
+        trigger.addEventListener('click', () => { loginModal.style.display = 'flex'; passInput.focus(); });
+        loginBtn.addEventListener('click', () => {
+            if(passInput.value === 'nc7') { enableEditor(); loginModal.style.display = 'none'; passInput.value = ''; } 
+            else { alert('неверный пароль'); }
+        });
+
+        function enableEditor() {
+            document.body.classList.add('editor-mode');
+            trigger.style.display = 'none';
+            adminPanel.style.display = 'flex';
+            makeContentEditable();
+            addPlusButtons();
+            addControlsToCards();
+            setTimeout(initMobileParallax, 100);
+        }
+
+        function makeContentEditable() { document.querySelectorAll('h3, p, h2').forEach(el => el.setAttribute('contenteditable', 'true')); }
+
+        function addPlusButtons() {
+            const mainGrid = document.getElementById('collections-grid');
+            if(!mainGrid.querySelector('.add-card-btn')) {
+                const btn = createAddBtn('новая папка');
+                btn.onclick = createNewCollection;
+                mainGrid.appendChild(btn);
+            }
+            document.querySelectorAll('.movie-grid').forEach(grid => {
+                if(!grid.querySelector('.add-card-btn')) {
+                    const btn = createAddBtn('добавить фильм');
+                    btn.onclick = function() { addMovieToGrid(grid); };
+                    grid.appendChild(btn);
+                }
+            });
+        }
+
+        function createAddBtn(text) {
+            const div = document.createElement('div');
+            div.className = 'add-card-btn';
+            div.innerHTML = `<span>+</span><div>${text}</div>`;
+            return div;
+        }
+
+        function createNewCollection() {
+            const title = prompt('название коллекции:'); if(!title) return;
+            const imgUrl = prompt('ссылка на постер:'); if(!imgUrl) return;
+            const id = 'col-' + Math.random().toString(36).substr(2, 9);
+            const defaultColors = 'data-c1="#7000FF" data-c2="#4B0082" data-c3="#9D00FF"';
+
+            const cardHTML = `
+                <div class="card collection-card" onclick="openPage('${id}')" ${defaultColors}>
+                    <img src="${imgUrl}" alt="${title}">
+                    <div class="card-info"><h3 contenteditable="true">${title.toLowerCase()}</h3><p contenteditable="true">коллекция</p></div>
+                </div>
+            `;
+            const btn = document.querySelector('#collections-grid .add-card-btn');
+            const tempDiv = document.createElement('div'); tempDiv.innerHTML = cardHTML;
+            const newCard = tempDiv.firstElementChild;
+            document.getElementById('collections-grid').insertBefore(newCard, btn);
+            addControlsToElement(newCard);
+            initMobileParallax();
+
+            const paletteHTML = `
+                <div id="color-picker-ui">
+                    <div class="color-input-wrapper"><input type="color" value="#7000FF" oninput="updateSectionColor(this, 1)"></div>
+                    <div class="color-input-wrapper"><input type="color" value="#4B0082" oninput="updateSectionColor(this, 2)"></div>
+                    <div class="color-input-wrapper"><input type="color" value="#9D00FF" oninput="updateSectionColor(this, 3)"></div>
+                </div>
+            `;
+
+            const newSectionHTML = `
+                <div id="${id}" class="hidden collection-section fade-in" ${defaultColors}>
+                    <div class="nav-bar">
+                        <div class="back-btn" onclick="goHome()">← назад</div>
+                        ${paletteHTML}
+                    </div>
+                    <h2 class="section-title" contenteditable="true">${title.toLowerCase()}</h2>
+                    <div class="grid movie-grid"></div>
+                </div>
+            `;
+            document.getElementById('main-container').insertAdjacentHTML('beforeend', newSectionHTML);
+            const newGrid = document.getElementById(id).querySelector('.movie-grid');
+            const movieBtn = createAddBtn('добавить фильм');
+            movieBtn.onclick = function() { addMovieToGrid(newGrid); };
+            newGrid.appendChild(movieBtn);
+        }
+
+        function addMovieToGrid(grid) {
+            const title = prompt('название фильма:'); if(!title) return;
+            const year = prompt('год:', '202_');
+            const imgUrl = prompt('ссылка на постер:');
+            const driveId = prompt('google drive id:'); if(!driveId) return;
+
+            const cardHTML = `
+                <div class="card" onclick="playVideo('${driveId}')">
+                    <img src="${imgUrl}">
+                    <div class="card-info"><h3 contenteditable="true">${title.toLowerCase()}</h3><p contenteditable="true">${year}</p></div>
+                </div>
+            `;
+            const btn = grid.querySelector('.add-card-btn');
+            const tempDiv = document.createElement('div'); tempDiv.innerHTML = cardHTML;
+            const newCard = tempDiv.firstElementChild;
+            grid.insertBefore(newCard, btn);
+            addControlsToElement(newCard);
+            initMobileParallax();
+        }
+
+        function addControlsToCards() { document.querySelectorAll('.card').forEach(card => addControlsToElement(card)); }
+        function addControlsToElement(el) {
+            if(el.querySelector('.card-controls')) return;
+            const controlsDiv = document.createElement('div'); controlsDiv.className = 'card-controls';
+            
+            const delBtn = document.createElement('div'); delBtn.className = 'ctrl-btn delete-btn'; delBtn.innerHTML = '×';
+            delBtn.onclick = (e) => { e.stopPropagation(); if(confirm('удалить?')) el.remove(); };
+
+            const editBtn = document.createElement('div'); editBtn.className = 'ctrl-btn edit-link-btn'; editBtn.innerHTML = '✎';
+            editBtn.onclick = (e) => { e.stopPropagation(); editCardData(el); };
+
+            controlsDiv.appendChild(editBtn); controlsDiv.appendChild(delBtn); el.appendChild(controlsDiv);
+        }
+
+        function editCardData(card) {
+            const img = card.querySelector('img');
+            const newPoster = prompt("постер:", img.src); if (newPoster) img.src = newPoster;
+            const clickAttr = card.getAttribute('onclick');
+            if (clickAttr.includes('playVideo')) {
+                const oldId = clickAttr.match(/playVideo\('([^']+)'\)/)[1];
+                const newId = prompt("drive id:", oldId); if (newId) card.setAttribute('onclick', `playVideo('${newId}')`);
+            } else { alert("настройки папки редактируйте внутри нее."); }
+        }
+
+        function saveChanges() {
+            const clone = document.documentElement.cloneNode(true);
+            const body = clone.querySelector('body');
+            body.classList.remove('editor-mode');
+            const starsContainer = clone.querySelector('#stars-container');
+            starsContainer.querySelectorAll('.star').forEach(s => s.remove());
+            clone.querySelectorAll('.add-card-btn').forEach(el => el.remove());
+            clone.querySelectorAll('.card-controls').forEach(el => el.remove());
+            clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            clone.querySelector('#admin-panel').style.display = 'none';
+            clone.querySelector('#admin-trigger').style.display = 'block';
+
+            // ОЧИЩАЕМ ИСТОРИЮ (в скачанном файле она должна быть пустой)
+            clone.querySelector('#history-section').classList.add('hidden');
+            clone.querySelector('#resume-grid').innerHTML = '';
+            
+            // Убираем классы активности с мобилки
+            clone.querySelectorAll('.mobile-active').forEach(el => el.classList.remove('mobile-active'));
+
+            const htmlContent = "<!DOCTYPE html>\n" + clone.outerHTML;
+            const blob = new Blob([htmlContent], {type: "text/html"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const date = new Date();
+            a.href = url; a.download = `ncinema_mobile_${date.getHours()}-${date.getMinutes()}.html`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+        function exitEditor() { if(confirm('выйти?')) window.location.reload(); }
+    </script>
+
+</body>
+</html>
