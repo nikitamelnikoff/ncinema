@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru" style="--active-blob1: #7000FF; --active-blob2: #4B0082; --active-blob3: #9D00FF;"><head>
+<html lang="ru">
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <title>NCinema</title>
 
@@ -71,7 +75,14 @@
         .header { 
             position: sticky; top: 0; z-index: 1000;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 40px; background: var(--header-bg);
+            
+            /* ИЗМЕНЕНО: Добавлен отступ сверху для "челки" */
+            padding-top: max(15px, env(safe-area-inset-top));
+            padding-bottom: 15px;
+            padding-left: 40px; 
+            padding-right: 40px;
+            
+            background: var(--header-bg);
             border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -98,7 +109,13 @@
         .header-btn:hover { transform: scale(1.05); }
 
         /* --- UI КОНТЕНТ --- */
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px; padding-bottom: 100px; }
+        .container { 
+            max-width: 1200px; margin: 0 auto; 
+            padding: 40px; 
+            /* ИЗМЕНЕНО: Отступ снизу учитывает системную полоску */
+            padding-bottom: max(100px, env(safe-area-inset-bottom) + 20px);
+        }
+        
         .nav-bar { display: flex; align-items: center; margin-bottom: 30px; position: relative; }
         .back-btn { font-size: 1.2rem; color: rgba(255,255,255,0.6); cursor: pointer; transition: 0.3s; }
         .back-btn:hover { color: white; transform: translateX(-5px); }
@@ -149,20 +166,31 @@
         /* ========================================= */
         @media (max-width: 768px) {
             
-            .header { padding: 12px 15px; } 
+            /* 1. ФИКС ХЕДЕРА И КНОПКИ АДМИНКИ */
+            .header { 
+                /* Учитываем остров сверху */
+                padding-top: max(12px, env(safe-area-inset-top));
+                padding-bottom: 12px;
+                padding-left: 15px; 
+                padding-right: 15px;
+            } 
             .brand { font-size: 1.5rem; } 
             .header-right { gap: 10px; } 
             .header-btn { font-size: 0.9rem; padding: 6px 10px; }
             
             #admin-trigger { display: none !important; }
 
+            /* 2. ФИКС ФОНА */
             .blob-1 { width: 140vw; height: 140vw; top: -20%; left: -20%; opacity: 0.7; }
             .blob-2 { width: 140vw; height: 140vw; bottom: -20%; right: -50%; opacity: 0.7; }
             .blob-3 { width: 120vw; height: 120vw; top: 40%; left: -10%; opacity: 0.5; }
 
-            .container { padding: 20px 0; padding-bottom: 80px; }
+            /* 3. КОНТЕНТ */
+            /* Учитываем полоску снизу */
+            .container { padding: 20px 0; padding-bottom: max(80px, env(safe-area-inset-bottom) + 20px); }
             .section-title { margin-left: 20px; font-size: 2rem; }
 
+            /* 4. КАРУСЕЛЬ */
             .grid {
                 display: flex; 
                 overflow-x: auto; 
@@ -252,7 +280,6 @@
             border-radius: 24px; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8); background: #000;
         }
         
-        /* ОБНОВЛЕННЫЙ IFRAME ДЛЯ ПОЛНОГО ЭКРАНА НА IPHONE */
         iframe { width: 100%; height: 100%; border: none; }
         
         .close-btn { 
@@ -398,7 +425,7 @@
                     <img src="https://www.themoviedb.org/t/p/w1280/tGoC0XMAHrDm8iZlDWI4uk80kdo.jpg">
                     <div class="card-info"><h3>две крепости</h3><p>2002</p></div>
                 </div>
-                <div class="card" onclick="playVideo('1P_DX-WCtuyGDX5bbGwCSSa7rlnBP6Q1-')">
+                <div class="card" onclick="playVideo('d/1P_DX-WCtuyGDX5bbGwCSSa7rlnBP6Q1-')">
                     <img src="https://www.themoviedb.org/t/p/w1280/x6NqCWwU1SrQnvfdmVPAuATyUgD.jpg">
                     <div class="card-info"><h3>возвращение короля</h3><p>2003</p></div>
                 </div>
