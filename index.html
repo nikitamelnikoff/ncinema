@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
+<html lang="ru" style="--active-blob1: #7000FF; --active-blob2: #4B0082; --active-blob3: #9D00FF;"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
@@ -13,25 +12,19 @@
 
     <style>
         :root {
-            /* --- 1. ФИРМЕННЫЕ ЦВЕТА --- */
             --brand-primary: #7000FF;
             --brand-secondary: #9D00FF;
-
-            /* --- 2. ДИНАМИЧЕСКИЕ ЦВЕТА --- */
             --default-blob1: #7000FF;
             --default-blob2: #4B0082;
             --default-blob3: #9D00FF;
-
             --active-blob1: var(--default-blob1);
             --active-blob2: var(--default-blob2);
             --active-blob3: var(--default-blob3);
-
             --bg-deep: #050505;
             --text: #ffffff;
             --header-bg: rgba(255, 255, 255, 0.95);
         }
 
-        /* --- ГЛОБАЛЬНЫЕ --- */
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-deep);
@@ -43,7 +36,6 @@
             text-transform: lowercase; 
         }
 
-        /* --- ФОН --- */
         .background-container {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1; background: #000; overflow: hidden;
@@ -71,17 +63,11 @@
         @keyframes twinkle { 0% { opacity: 0; transform: scale(0.5); } 50% { opacity: var(--max-opacity); transform: scale(1.2); } 100% { opacity: 0; transform: scale(0.5); } }
         @keyframes drift { 0% { transform: translate(0, 0); } 100% { transform: translate(var(--move-x), var(--move-y)); } }
 
-        /* --- ХЕДЕР --- */
         .header { 
             position: sticky; top: 0; z-index: 1000;
             display: flex; justify-content: space-between; align-items: center;
-            
-            /* ИЗМЕНЕНО: Добавлен отступ сверху для "челки" */
+            padding: 15px 40px; 
             padding-top: max(15px, env(safe-area-inset-top));
-            padding-bottom: 15px;
-            padding-left: 40px; 
-            padding-right: 40px;
-            
             background: var(--header-bg);
             border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
@@ -108,12 +94,11 @@
         }
         .header-btn:hover { transform: scale(1.05); }
 
-        /* --- UI КОНТЕНТ --- */
         .container { 
             max-width: 1200px; margin: 0 auto; 
             padding: 40px; 
-            /* ИЗМЕНЕНО: Отступ снизу учитывает системную полоску */
             padding-bottom: max(100px, env(safe-area-inset-bottom) + 20px);
+            position: relative; z-index: 1;
         }
         
         .nav-bar { display: flex; align-items: center; margin-bottom: 30px; position: relative; }
@@ -125,8 +110,7 @@
             color: #ffffff; letter-spacing: -2px; line-height: 1; text-transform: lowercase; 
         }
         
-        /* --- СЕТКА (ОСНОВА DESKTOP) --- */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; position: relative; }
         
         .card {
             position: relative; aspect-ratio: 2/3; border-radius: 16px; cursor: pointer;
@@ -149,7 +133,6 @@
         .card h3 { margin: 0; font-size: 1.1rem; font-weight: 700; line-height: 1.2; text-transform: lowercase; }
         .card p { margin: 5px 0 0 0; font-size: 0.85rem; opacity: 0.7; text-transform: lowercase; }
 
-        /* --- ХОВЕРЫ ДЛЯ ПК --- */
         @media (hover: hover) {
             .card:hover { transform: scale(1.05) translateY(-10px); z-index: 2; }
             .card:hover img { filter: brightness(1.1); box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(var(--active-blob1), 0.3); }
@@ -161,59 +144,58 @@
             #resume-grid .card:not(:first-child):hover { opacity: 1; transform: scale(1.05) translateY(-10px); filter: grayscale(0%); box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(var(--active-blob1), 0.3); z-index: 10; }
         }
 
-        /* ========================================= */
-        /* === МОБИЛЬНАЯ АДАПТАЦИЯ (iPhone 16 Pro) === */
-        /* ========================================= */
+        .carousel-arrow {
+            display: none; 
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 1.2rem;
+            align-items: center; justify-content: center;
+            cursor: pointer; z-index: 20;
+            user-select: none;
+        }
+        .arrow-left { left: 10px; }
+        .arrow-right { right: 10px; }
+        .carousel-wrapper { position: relative; }
+
         @media (max-width: 768px) {
-            
-            /* 1. ФИКС ХЕДЕРА И КНОПКИ АДМИНКИ */
-            .header { 
-                /* Учитываем остров сверху */
-                padding-top: max(12px, env(safe-area-inset-top));
-                padding-bottom: 12px;
-                padding-left: 15px; 
-                padding-right: 15px;
-            } 
+            .header { padding: 12px 15px; padding-top: max(12px, env(safe-area-inset-top)); } 
             .brand { font-size: 1.5rem; } 
             .header-right { gap: 10px; } 
             .header-btn { font-size: 0.9rem; padding: 6px 10px; }
-            
             #admin-trigger { display: none !important; }
 
-            /* 2. ФИКС ФОНА */
-            .blob-1 { width: 140vw; height: 140vw; top: -20%; left: -20%; opacity: 0.7; }
-            .blob-2 { width: 140vw; height: 140vw; bottom: -20%; right: -50%; opacity: 0.7; }
-            .blob-3 { width: 120vw; height: 120vw; top: 40%; left: -10%; opacity: 0.5; }
+            .blob-1 { width: 150vw; height: 150vw; top: -30%; left: -25%; opacity: 0.7; }
+            .blob-2 { width: 150vw; height: 150vw; bottom: -30%; right: -60%; opacity: 0.7; }
+            .blob-3 { width: 100vw; height: 100vw; top: 30%; left: 0%; opacity: 0.6; }
 
-            /* 3. КОНТЕНТ */
-            /* Учитываем полоску снизу */
             .container { padding: 20px 0; padding-bottom: max(80px, env(safe-area-inset-bottom) + 20px); }
             .section-title { margin-left: 20px; font-size: 2rem; }
 
-            /* 4. КАРУСЕЛЬ */
+            .carousel-arrow { display: flex; }
+
             .grid {
-                display: flex; 
-                overflow-x: auto; 
-                gap: 15px; 
+                display: flex; overflow-x: auto; gap: 15px; 
                 padding: 10px 20vw 40px 20vw; 
                 scroll-snap-type: x mandatory; 
                 scrollbar-width: none; 
                 -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth; 
             }
             .grid::-webkit-scrollbar { display: none; }
 
             .card {
-                min-width: 60vw; 
-                scroll-snap-align: center;
+                min-width: 60vw; scroll-snap-align: center;
                 transform: scale(0.9); opacity: 0.6; filter: grayscale(20%);
                 z-index: 1;
             }
 
             .card.mobile-active {
-                transform: scale(1.05); 
-                opacity: 1; 
-                filter: grayscale(0%); 
-                z-index: 10;
+                transform: scale(1.05); opacity: 1; filter: grayscale(0%); z-index: 10;
             }
             .card.mobile-active img {
                 box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 30px rgba(var(--active-blob1), 0.5);
@@ -223,8 +205,6 @@
             #resume-grid .card:first-child { border: none; }
         }
 
-
-        /* --- АДМИНКА --- */
         .add-card-btn {
             display: none; flex-direction: column; align-items: center; justify-content: center;
             background: rgba(255,255,255,0.05); border: 2px dashed var(--active-blob1);
@@ -236,10 +216,7 @@
         .add-card-btn div { font-size: 0.9rem; font-weight: 600; margin-top: 10px; text-transform: lowercase; }
 
         @media (max-width: 768px) {
-            .add-card-btn {
-                min-width: 60vw;
-                scroll-snap-align: center;
-            }
+            .add-card-btn { min-width: 60vw; scroll-snap-align: center; }
         }
 
         .card-controls { display: none; position: absolute; top: 10px; right: 10px; z-index: 100; gap: 8px; }
@@ -267,7 +244,6 @@
         .color-input-wrapper:hover { transform: scale(1.2); }
         .color-input-wrapper input[type="color"] { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; padding: 0; margin: 0; border: none; cursor: pointer; }
 
-        /* --- ПЛЕЕР --- */
         .modal { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -279,9 +255,7 @@
             width: 100%; max-width: 1200px; aspect-ratio: 16/9; position: relative; 
             border-radius: 24px; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8); background: #000;
         }
-        
         iframe { width: 100%; height: 100%; border: none; }
-        
         .close-btn { 
             position: absolute; top: 20px; right: 20px; width: 40px; height: 40px;
             background: rgba(255, 255, 255, 0.1); color: white; font-size: 1.5rem; 
@@ -298,7 +272,6 @@
         .fade-in { animation: fadeIn 0.6s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ПАНЕЛЬ АДМИНА */
         #admin-panel { position: fixed; bottom: 20px; right: 20px; background: #1d1d1f; color: #fff; padding: 15px 25px; border-radius: 50px; z-index: 10000; display: none; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
         #admin-panel button { border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #fff; text-transform: lowercase; }
         #save-btn { background: var(--active-blob1); }
@@ -339,28 +312,36 @@
             
             <div id="history-section" class="fade-in hidden">
                 <h2 class="section-title">история просмотров</h2>
-                <div class="grid" id="resume-grid" style="margin-bottom: 60px;"></div>
+                <div class="carousel-wrapper">
+                    <div class="carousel-arrow arrow-left" onclick="scrollCarousel('resume-grid', -1)">‹</div>
+                    <div class="grid" id="resume-grid" style="margin-bottom: 60px;"></div>
+                    <div class="carousel-arrow arrow-right" onclick="scrollCarousel('resume-grid', 1)">›</div>
+                </div>
             </div>
 
             <h2 class="section-title">моя коллекция</h2>
-            <div class="grid" id="collections-grid">
-                
-                <div class="card collection-card" onclick="openPage('col-sample')" data-c1="#4cc6d6" data-c2="#114174" data-c3="#0091ff">
-                    <img src="https://www.themoviedb.org/t/p/w1280/rzE3OlUntmIDgfVQGxU7WIjAY7L.jpg" alt="Гарри Поттер">
-                    <div class="card-info">
-                        <h3>гарри поттер</h3>
-                        <p>коллекция</p>
+            <div class="carousel-wrapper">
+                <div class="carousel-arrow arrow-left" onclick="scrollCarousel('collections-grid', -1)">‹</div>
+                <div class="grid" id="collections-grid">
+                    
+                    <div class="card collection-card" onclick="openPage('col-sample')" data-c1="#4ebad0" data-c2="#114174" data-c3="#ff0000">
+                        <img src="img/hp0.jpg" alt="Гарри Поттер">
+                        <div class="card-info">
+                            <h3>гарри поттер</h3>
+                            <p>коллекция</p>
+                        </div>
+                    </div>
+
+                    <div class="card collection-card" onclick="openPage('col-r71sfwqd0')" data-c1="#e2b465" data-c2="#804a00" data-c3="#ff7b00">
+                        <img src="img/vk0.jpg" alt="властелин колец">
+                        <div class="card-info"><h3>властелин колец</h3><p>коллекция</p></div>
                     </div>
                 </div>
-
-                <div class="card collection-card" onclick="openPage('col-r71sfwqd0')" data-c1="#e2b465" data-c2="#804a00" data-c3="#ff7b00">
-                    <img src="https://www.themoviedb.org/t/p/w1280/nQLlpH905RXa9ifZrK8sWCbm4FS.jpg" alt="властелин колец">
-                    <div class="card-info"><h3>властелин колец</h3><p>коллекция</p></div>
-                </div>
+                <div class="carousel-arrow arrow-right" onclick="scrollCarousel('collections-grid', 1)">›</div>
             </div>
         </div>
 
-        <div id="col-sample" class="collection-section fade-in hidden" data-c1="#4cc6d6" data-c2="#114174" data-c3="#0091ff">
+        <div id="col-sample" class="collection-section fade-in hidden" data-c1="#4ebad0" data-c2="#114174" data-c3="#ff0000">
             <div class="nav-bar">
                 <div class="back-btn" onclick="goHome()">← назад</div>
                 <div id="color-picker-ui">
@@ -370,39 +351,37 @@
                 </div>
             </div>
             <h2 class="section-title">гарри поттер</h2>
-            <div class="grid movie-grid">
-                 <div class="card" onclick="playVideo('1lyT302Lb-Dkx4E36L-Fodu69XWp6cx8w')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/Z2CbhtMtbVaBEvhqBKMNB0p0ko.jpg">
-                    <div class="card-info"><h3>философский камень</h3><p>2001</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1YkiXBDKO7zTL-5UmJehteG0IY8qgEQYy')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/33Wj3LSyoAqtqkeh7YXcVMvTQzc.jpg">
-                    <div class="card-info"><h3>тайная комната</h3><p>2002</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1-ouEbW3mQKrsMrcQXjt7N3XHO5PgeQol')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/mncDize7FLO9RBovXKZ7LefUkbu.jpg">
+            <div class="carousel-wrapper">
+                <div class="carousel-arrow arrow-left" onclick="scrollCarousel('grid-harry', -1)">‹</div>
+                <div class="grid movie-grid" id="grid-harry">
+                     <div class="card" onclick="playVideo('jk')">
+                        <img src="img/hp1.jpg">
+                        <div class="card-info"><h3>философский камень</h3><p>2001</p></div>
+                    </div>
+                    <div class="card" onclick="playVideo('1YkiXBDKO7zTL-5UmJehteG0IY8qgEQYy')">
+                        <img src="img/hp2.jpg">
+                        <div class="card-info"><h3>тайная комната</h3><p>2002</p></div>
+                    </div>
+                <div class="card" onclick="playVideo('hh')">
+                    <img src="img/hp3.jpg">
                     <div class="card-info"><h3>узник азкабана</h3><p>2004</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1qH6UNiPOQOeF2cmMmVLAqrtUBv-yNMw9')">
-                    <img src="https://image.tmdb.org/t/p/original/sJRIYTEJWanrh1o8yfhGkOGJ7zu.jpg">
+                </div><div class="card" onclick="playVideo('hijk')">
+                    <img src="img/hp4.jpg">
                     <div class="card-info"><h3>кубок огня</h3><p>2005</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1HpYXGxOlYSJaTh8v2UR8FOPhDpHIGTLw')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/lBuFOlXNY3YYIkXInGqcd7aJoAY.jpg">
+                </div><div class="card" onclick="playVideo('gu')">
+                    <img src="img/hp5.jpg">
                     <div class="card-info"><h3>орден феникса</h3><p>2007</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1XmvA_4zfP1SLY4rh2Tlk-pFeaRXCO8ln')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/zhMOIXezutmTCeP1AvPZHakGCYs.jpg">
+                </div><div class="card" onclick="playVideo('ytiyyt')">
+                    <img src="img/hp6.jpg">
                     <div class="card-info"><h3>принц-полукровка</h3><p>2009</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1okFV-_QCd3He6T_P8lq6L2de64tN3KJ_')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/nUJc0DOO0lh8pjLkmMtPObA2NKf.jpg">
+                </div><div class="card" onclick="playVideo('gfed')">
+                    <img src="img/hp7.jpg">
                     <div class="card-info"><h3>дары смерти</h3><p>2010</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1cUmypBiuwbhLiRRFIpA16-TSFRd_LNgw')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/cSxvq15AOeJ2jNdVRXJvAoZU8T6.jpg">
+                </div><div class="card" onclick="playVideo('drg')">
+                    <img src="img/hp8.jpg">
                     <div class="card-info"><h3>дары смерти</h3><p>2011</p></div>
-                </div>
+                </div></div>
+                <div class="carousel-arrow arrow-right" onclick="scrollCarousel('grid-harry', 1)">›</div>
             </div>
         </div>
 
@@ -416,19 +395,21 @@
                 </div>
             </div>
             <h2 class="section-title">властелин колец</h2>
-            <div class="grid movie-grid">
-                <div class="card" onclick="playVideo('1bnbzxHBS5z_qtvDO_bB5eRc-y3tq7td3')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/lxaDSQCLsMRRbp4UsfvsxzOq1OB.jpg">
-                    <div class="card-info"><h3>братство кольца</h3><p>2001</p></div>
-                </div>
-                <div class="card" onclick="playVideo('1JRD5KiomRXKg61ISL0dnsBaErShE0VcB')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/tGoC0XMAHrDm8iZlDWI4uk80kdo.jpg">
+            <div class="carousel-wrapper">
+                <div class="carousel-arrow arrow-left" onclick="scrollCarousel('grid-lotr', -1)">‹</div>
+                <div class="grid movie-grid" id="grid-lotr">
+                    <div class="card" onclick="playVideo('https://vk.com/video_ext.php?oid=-235467508&amp;id=456239018&amp;hash=c1c0286266cb46be&amp;autoplay=1')">
+                        <img src="img/vk1.jpg">
+                        <div class="card-info"><h3>братство кольца</h3><p>2001</p></div>
+                    </div>
+                <div class="card" onclick="playVideo('https://vk.com/video_ext.php?oid=-235467508&amp;id=456239019&amp;hash=ddd5ece51a89cdca&amp;autoplay=1')">
+                    <img src="img/vk2.jpg">
                     <div class="card-info"><h3>две крепости</h3><p>2002</p></div>
-                </div>
-                <div class="card" onclick="playVideo('d/1P_DX-WCtuyGDX5bbGwCSSa7rlnBP6Q1-')">
-                    <img src="https://www.themoviedb.org/t/p/w1280/x6NqCWwU1SrQnvfdmVPAuATyUgD.jpg">
+                </div><div class="card" onclick="playVideo('https://vkvideo.ru/video_ext.php?oid=-235467508&amp;id=456239022&amp;hash=f707b933563ce238&amp;hd=3&amp;autoplay=1')">
+                    <img src="file:///C:/Users/nikit/OneDrive/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B/%D0%A0%D0%B0%D0%B1%D0%BE%D1%87%D0%B8%D0%B9%20%D1%81%D1%82%D0%BE%D0%BB/%D0%9E%D0%BD%D0%BB%D0%B0%D0%B9%D0%BD-%D0%BA%D0%B8%D0%BD%D0%BE%D1%82%D0%B5%D0%B0%D1%82%D1%80/img/vk3.jpg">
                     <div class="card-info"><h3>возвращение короля</h3><p>2003</p></div>
-                </div>
+                </div></div>
+                <div class="carousel-arrow arrow-right" onclick="scrollCarousel('grid-lotr', 1)">›</div>
             </div>
         </div>
     </div>
@@ -478,7 +459,13 @@
             initMobileParallax();
         });
 
-        /* --- МОБИЛЬНЫЙ ПАРАЛЛАКС --- */
+        function scrollCarousel(gridId, direction) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            const scrollAmount = window.innerWidth * 0.6 + 15; 
+            grid.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
+        }
+
         function initMobileParallax() {
             const options = { root: null, rootMargin: '0px', threshold: 0.7 };
             const observer = new IntersectionObserver((entries) => {
@@ -493,7 +480,6 @@
             document.querySelectorAll('.card, .add-card-btn').forEach(el => observer.observe(el));
         }
 
-        /* --- ПАМЯТЬ И ИСТОРИЯ --- */
         function restoreSession() {
             const lastPageId = localStorage.getItem('nc_last_page');
             if (lastPageId && document.getElementById(lastPageId)) {
@@ -521,7 +507,9 @@
                 history.forEach(data => {
                     const card = document.createElement('div');
                     card.className = 'card';
-                    card.onclick = () => playVideo(data.id, false); 
+                    // Оборачиваем ID/Ссылку в кавычки при создании HTML
+                    card.onclick = function() { playVideo(data.id, false); };
+                    
                     card.innerHTML = `
                         <img src="${data.img}">
                         <div class="card-info">
@@ -539,7 +527,6 @@
             }
         }
 
-        /* --- ЦВЕТА --- */
         const root = document.documentElement;
         function applyColors(c1, c2, c3) {
             root.style.setProperty('--active-blob1', c1);
@@ -556,7 +543,6 @@
             if(card) { card.setAttribute(`data-c${index}`, color); }
         }
 
-        /* --- НАВИГАЦИЯ --- */
         const homeView = document.getElementById('home-view');
         const modal = document.getElementById('player-modal');
         const iframe = document.getElementById('video-frame');
@@ -598,28 +584,37 @@
             updateHistoryWidget();
         }
 
-        /* --- VIDEO --- */
-        function playVideo(fileId, recordHistory = true) {
+        function playVideo(source, recordHistory = true) {
             if (document.body.classList.contains('editor-mode')) return;
-            if(fileId.length < 2) { alert('ошибка id'); return; }
-            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+            if (!source || source.length < 2) { alert('ошибка id'); return; }
+            
+            // ПРОВЕРЯЕМ: ЭТО ССЫЛКА (ВК) ИЛИ ID (ГУГЛ)?
+            if (source.startsWith('http')) {
+                iframe.src = source;
+            } else {
+                // ИСПРАВЛЕНО: Добавлены кавычки (backticks) для корректной вставки ID
+                iframe.src = `https://drive.google.com/file/d/${source}/preview`;
+            }
+            
             modal.classList.add('active');
+
             if (recordHistory) {
                 let card = event.target.closest('.card');
+                // Если клик был не по карточке (например, из истории), card будет null, и это ок
                 if (card) {
                     const img = card.querySelector('img').src;
                     const title = card.querySelector('h3').innerText;
                     const year = card.querySelector('p').innerText;
-                    addToHistory(fileId, img, title, year);
+                    addToHistory(source, img, title, year);
                 }
             }
         }
+
         function closeVideo() {
             modal.classList.remove('active');
             setTimeout(() => { iframe.src = ""; }, 500);
         }
 
-        /* --- ADMIN CORE --- */
         const trigger = document.getElementById('admin-trigger');
         const loginModal = document.getElementById('login-modal');
         const passInput = document.getElementById('admin-pass');
@@ -701,11 +696,15 @@
                         ${paletteHTML}
                     </div>
                     <h2 class="section-title" contenteditable="true">${title.toLowerCase()}</h2>
-                    <div class="grid movie-grid"></div>
+                    <div class="carousel-wrapper">
+                        <div class="carousel-arrow arrow-left" onclick="scrollCarousel('${id}-grid', -1)">‹</div>
+                        <div class="grid movie-grid" id="${id}-grid"></div>
+                        <div class="carousel-arrow arrow-right" onclick="scrollCarousel('${id}-grid', 1)">›</div>
+                    </div>
                 </div>
             `;
             document.getElementById('main-container').insertAdjacentHTML('beforeend', newSectionHTML);
-            const newGrid = document.getElementById(id).querySelector('.movie-grid');
+            const newGrid = document.getElementById(`${id}-grid`);
             const movieBtn = createAddBtn('добавить фильм');
             movieBtn.onclick = function() { addMovieToGrid(newGrid); };
             newGrid.appendChild(movieBtn);
@@ -715,7 +714,8 @@
             const title = prompt('название фильма:'); if(!title) return;
             const year = prompt('год:', '202_');
             const imgUrl = prompt('ссылка на постер:');
-            const driveId = prompt('google drive id:'); if(!driveId) return;
+            // ВАЖНО: Подсказка для ВК
+            const driveId = prompt('ID Google Drive или ссылка VK Video:'); if(!driveId) return;
 
             const cardHTML = `
                 <div class="card" onclick="playVideo('${driveId}')">
@@ -749,10 +749,13 @@
             const img = card.querySelector('img');
             const newPoster = prompt("постер:", img.src); if (newPoster) img.src = newPoster;
             const clickAttr = card.getAttribute('onclick');
-            if (clickAttr.includes('playVideo')) {
-                const oldId = clickAttr.match(/playVideo\('([^']+)'\)/)[1];
-                const newId = prompt("drive id:", oldId); if (newId) card.setAttribute('onclick', `playVideo('${newId}')`);
-            } else { alert("настройки папки редактируйте внутри нее."); }
+            // Вытаскиваем старый ID или ссылку, не ломая кавычки
+            // Регулярка теперь ищет все что внутри playVideo('...')
+            const oldSourceMatch = clickAttr.match(/playVideo\('([^']+)'\)/);
+            const oldSource = oldSourceMatch ? oldSourceMatch[1] : '';
+            
+            const newSource = prompt("ID Drive или ссылка VK:", oldSource); 
+            if (newSource) card.setAttribute('onclick', `playVideo('${newSource}')`);
         }
 
         function saveChanges() {
@@ -767,11 +770,8 @@
             clone.querySelector('#admin-panel').style.display = 'none';
             clone.querySelector('#admin-trigger').style.display = 'block';
 
-            // ОЧИЩАЕМ ИСТОРИЮ (в скачанном файле она должна быть пустой)
             clone.querySelector('#history-section').classList.add('hidden');
             clone.querySelector('#resume-grid').innerHTML = '';
-            
-            // Убираем классы активности с мобилки
             clone.querySelectorAll('.mobile-active').forEach(el => el.classList.remove('mobile-active'));
 
             const htmlContent = "<!DOCTYPE html>\n" + clone.outerHTML;
@@ -779,7 +779,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             const date = new Date();
-            a.href = url; a.download = `ncinema_mobile_${date.getHours()}-${date.getMinutes()}.html`;
+            a.href = url; a.download = `ncinema_final_vk_${date.getHours()}-${date.getMinutes()}.html`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
         function exitEditor() { if(confirm('выйти?')) window.location.reload(); }
